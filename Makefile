@@ -1,3 +1,3 @@
 
 all:
-	$(CC) main.c -o printer-facts -l38moths -g3 -O0
+	$(CC) main.c -o printer-facts -l38moths -O3
