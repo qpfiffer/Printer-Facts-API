@@ -14,9 +14,9 @@ static int index_handler(const http_request *request, http_response *response) {
 		return 500;
 
 	const long int random_int = random() % printer_facts->count;
-	const char *random_fact = *(char **)vector_get(printer_facts, random_int);
+	char *random_fact = *(char **)vector_get(printer_facts, random_int);
 
-	response->out = (char *)random_fact;
+	response->out = (unsigned char *)random_fact;
 	response->outsize = strlen(random_fact);
 
 	return 200;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 	if (init_facts() != 0)
 		return -1;
 
-	http_serve(&main_sock_fd, 2, all_routes, sizeof(all_routes)/sizeof(all_routes[0]));
+	http_serve(&main_sock_fd, 8666, 2, all_routes, sizeof(all_routes)/sizeof(all_routes[0]));
 
 	return 0;
 }
