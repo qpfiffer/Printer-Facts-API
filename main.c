@@ -16,14 +16,17 @@ static int index_handler(const http_request *request, http_response *response) {
 	const long int random_int = random() % printer_facts->count;
 	char *random_fact = *(char **)vector_get(printer_facts, random_int);
 
-	response->out = (unsigned char *)random_fact;
-	response->outsize = strlen(random_fact);
+	char full_fact[1024] = {0};
+	snprintf(full_fact, sizeof(full_fact), "{\"facts\": [\"%s\"]}", random_fact);
+
+	response->out = (unsigned char *)strndup(full_fact, sizeof(full_fact));
+	response->outsize = strnlen(full_fact, sizeof(full_fact));
 
 	return 200;
 }
 
 static const route all_routes[] = {
-	{"GET", "root_handler", "^/.*$", 0, &index_handler, NULL},
+	{"GET", "root_handler", "^/.*$", 0, &index_handler, &heap_cleanup},
 };
 
 static int init_facts() {
@@ -38,7 +41,8 @@ static int init_facts() {
 
 	char line[512] = {0};
 	while (fgets(line, sizeof(line), facts)) {
-		const char *duped = strndup(line, sizeof(line));
+		char *duped = strndup(line, sizeof(line));
+		duped[strnlen(duped, sizeof(line)) - 1] = '\0';
 		vector_append_ptr(printer_facts, duped);
 	}
 
